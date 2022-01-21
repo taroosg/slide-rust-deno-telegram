@@ -1,0 +1,658 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+	<meta charset="utf-8">
+
+	<title>Rust と Deno で Webassembly する Telegram Bot をつくった</title>
+
+	<meta name="description" content="A framework for easily creating beautiful presentations using HTML">
+	<meta name="author" content="Hakim El Hattab">
+
+	<meta name="apple-mobile-web-app-capable" content="yes">
+	<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+	<link rel="stylesheet" href="http://localhost:34175/libs/reveal.js/4.1.3/reset.css">
+	<link rel="stylesheet" href="http://localhost:34175/libs/reveal.js/4.1.3/reveal.css">
+
+	
+	
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css">
+
+	  <!-- highlight Theme -->
+  	
+	  <link rel="stylesheet" href="http://localhost:34175/libs/highlight.js/11.3.1/styles/monokai.min.css">
+	
+	
+		
+	<link rel="stylesheet" href="http://localhost:34175/libs/reveal.js/4.1.3/plugin/chalkboard/style.css">
+	
+	
+	
+		<link rel="stylesheet" href="http://localhost:34175/libs/reveal.js/4.1.3/plugin/customcontrols/style.css">
+	
+	<link rel="stylesheet" href="http://localhost:34175/libs/styles/tasklist.css">
+
+
+
+  <!-- Revealjs Theme -->
+  
+  	<link rel="stylesheet" href="http://localhost:34175/libs/reveal.js/4.1.3/theme/black.css" id="theme">
+  
+  
+
+
+  <!-- Revealjs Theme -->
+  
+
+ 
+</head>
+
+<body>
+  
+
+
+  <div class="reveal">
+
+    <!-- Any section element inside of this container is displayed as a slide -->
+    <div class="slides">
+
+      
+
+
+    
+        <section >
+            
+            <p>Rust と Deno で Webassembly する</p>
+<p>Telegram Bot をつくった</p>
+
+            </section>
+    
+
+
+
+    
+    <section>
+        <section >
+            <div class="block">
+<p>自己紹介</p>
+</div style="background:#3e62ad;width:1000px">
+
+            </section>
+        
+            <section >
+                <table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Name</td>
+<td>大杉太郎（たろさん，たろ先生）</td>
+</tr>
+<tr>
+<td>Age</td>
+<td>34 （1987 年生まれ）</td>
+</tr>
+<tr>
+<td>Place</td>
+<td>茨城県 -&gt; 北海道 -&gt; 東京都 -&gt; 福岡県</td>
+</tr>
+<tr>
+<td>Career</td>
+<td>会社員（医療系メーカー企画設計開発）<br>ジーズアカデミー東京チューター<br>ジーズアカデミー福岡講師</td>
+</tr>
+<tr>
+<td>Like1</td>
+<td>Rust，Node.js，本，旅行，断捨離</td>
+</tr>
+<tr>
+<td>Like2</td>
+<td>🥃, 🍺, 🍷</td>
+</tr>
+</tbody>
+</table>
+
+            </section>
+        
+
+    </section>
+    
+
+
+
+    
+        <section >
+            
+            <p>もくじ</p>
+<ul>
+<li>やったことの概要</li>
+<li>Rust とか Deno とか</li>
+<li>実装したコードなどなど</li>
+<li>デモ</li>
+<li>まとめとか感想とか</li>
+</ul>
+
+            </section>
+    
+
+
+
+    
+    <section>
+        <section >
+            <p>やったことの概要</p>
+
+            </section>
+        
+            <section >
+                <ul>
+<li>
+<p>素因数分解のアプリをつくりたい</p>
+</li>
+<li>
+<p>Rust で書きたい</p>
+</li>
+<li>
+<p>画面はつくりたくない</p>
+</li>
+</ul>
+
+            </section>
+        
+            <section >
+                <p>そうだ，WebAssembly を使おう！</p>
+
+            </section>
+        
+            <section >
+                <p>WebAssembly はモダンなウェブブラウザーで実行できる新しいタイプのコードです。ネイティブに近いパフォーマンスで動作するコンパクトなバイナリー形式の低レベルなアセンブリ風言語です。さらに、 C/C++ や Rust のような言語のコンパイル対象となって、それらの言語をウェブ上で実行することができます。 WebAssembly は JavaScript と並行して動作するように設計されているため、両方を連携させることができます。</p>
+<p>by MDN</p>
+
+            </section>
+        
+            <section >
+                <ul>
+<li>
+<p>ロジックは Rust</p>
+</li>
+<li>
+<p>アプリは Deno</p>
+</li>
+<li>
+<p>Bot にすれば画面つくる必要なし！</p>
+</li>
+</ul>
+
+            </section>
+        
+
+    </section>
+    
+
+
+
+    
+    <section>
+        <section >
+            <p>Rust ??</p>
+
+            </section>
+        
+            <section >
+                <ul>
+<li>
+<p>C 並にはやい！</p>
+</li>
+<li>
+<p>型と所有権で安全！</p>
+</li>
+<li>
+<p>エラーメッセージやドキュメントがやさしい！</p>
+</li>
+</ul>
+
+            </section>
+        
+
+    </section>
+    
+
+
+
+    
+    <section>
+        <section >
+            <p>Deno ??</p>
+
+            </section>
+        
+            <section >
+                <ul>
+<li>
+<p>デノ，ディーノ</p>
+</li>
+<li>
+<p>npm が不要な Node.js（TS）</p>
+</li>
+<li>
+<p>ES Module で記述する</p>
+</li>
+</ul>
+
+            </section>
+        
+
+    </section>
+    
+
+
+
+    
+    <section>
+        <section >
+            <p>成果物全体の流れ</p>
+
+            </section>
+        
+            <section >
+                <ul>
+<li>
+<p>Deno のアプリケーションが Telegram に接続</p>
+</li>
+<li>
+<p>処理は Rust で書いたものを読み込む</p>
+</li>
+<li>
+<p>Telegram から入力して動作</p>
+</li>
+</ul>
+
+            </section>
+        
+
+    </section>
+    
+
+
+
+    
+        <section >
+            
+            <p>実装したコード</p>
+
+            </section>
+    
+
+
+
+    
+    <section>
+        <section >
+            <p>Rust</p>
+
+            </section>
+        
+            <section >
+                <p>入力値を 2 から順に割る処理を再帰で実行する</p>
+
+            </section>
+        
+            <section >
+                <pre><code class="language-rust">pub fn prime_factorization(n: usize) -&gt; Vec&lt;usize&gt; {
+  fn push_number_to_array(number: usize, array: Vec&lt;usize&gt;) -&gt; Vec&lt;usize&gt; {
+    array.iter().chain([number].iter()).map(|&amp;x| x).collect()
+  }
+
+  fn is_divisor_larger_than_sqrt_dividend(dividend: usize, divisor: usize) -&gt; bool {
+    divisor as f64 &gt;= (dividend as f64).sqrt()
+  }
+
+  fn get_prime_number_array(dividend: usize, divisor: usize, result: Vec&lt;usize&gt;) -&gt; Vec&lt;usize&gt; {
+    match dividend {
+      1 =&gt; result,
+      _ =&gt; match dividend % divisor {
+        0 =&gt; get_prime_number_array(
+          dividend / divisor,
+          divisor,
+          push_number_to_array(divisor, result),
+        ),
+        _ =&gt; match is_divisor_larger_than_sqrt_dividend(dividend, divisor) {
+          true =&gt; push_number_to_array(dividend, result),
+          false =&gt; get_prime_number_array(dividend, divisor + 1, result),
+        },
+      },
+    }
+  }
+  get_prime_number_array(n, 2, vec![])
+}
+</code></pre>
+
+            </section>
+        
+
+    </section>
+    
+
+
+
+    
+    <section>
+        <section >
+            <p>Deno</p>
+
+            </section>
+        
+            <section >
+                
+            </section>
+        
+            <section >
+                <pre><code class="language-ts">import { Bot } from &quot;./deps.ts&quot;;
+import init, { fib, prime_factorization } from &quot;./pkg/rust_calculate_bot.js&quot;;
+
+await init(Deno.readFile(&quot;./pkg/rust_calculate_bot_bg.wasm&quot;));
+
+// 数値かどうかをチェックする関数
+const isNumber = (str: string): boolean =&gt; new RegExp(/^[0-9]+$/).test(str);
+
+// レスポンスを作成する関数
+const createResponse = (str: string | undefined): string =&gt;
+  !str
+    ? &quot;NaN&quot;
+    : !isNumber(str)
+    ? &quot;NaN&quot;
+    : !(Number(str) &gt; 0)
+    ? &quot;0&quot;
+    : prime_factorization(Number(str)).join(&quot;\n&quot;);
+
+const token = Deno.env.get(&quot;BOT_TOKEN&quot;) as string;
+
+const bot = new Bot(token);
+
+bot.on(&quot;text&quot;, async (ctx) =&gt; {
+  await ctx.reply(createResponse(ctx.message?.text));
+});
+
+bot.launch();
+</code></pre>
+
+            </section>
+        
+
+    </section>
+    
+
+
+
+    
+        <section >
+            
+            <p>デモ</p>
+
+            </section>
+    
+
+
+
+    
+    <section>
+        <section >
+            <p>まとめとか感想とか</p>
+
+            </section>
+        
+            <section >
+                <ul>
+<li>
+<p>Rust のコードをビルドして読み込むだけ！</p>
+</li>
+<li>
+<p>Rust の処理は入出力を明確にするとやりやすい</p>
+</li>
+<li>
+<p>実装の幅が広がる．．！！</p>
+</li>
+</ul>
+
+            </section>
+        
+
+    </section>
+    
+
+
+    </div>
+
+
+  </div>
+
+  	
+	<script src="http://localhost:34175/libs/reveal.js/4.1.3/reveal.js"></script>
+	<script src="http://localhost:34175/libs/reveal.js/4.1.3/plugin/zoom/zoom.js"></script>
+	<script src="http://localhost:34175/libs/reveal.js/4.1.3/plugin/notes/notes.js"></script>
+	<script src="http://localhost:34175/libs/reveal.js/4.1.3/plugin/search/search.js"></script>
+	<script src="http://localhost:34175/libs/reveal.js/4.1.3/plugin/markdown/markdown.js"></script>
+	<script src="http://localhost:34175/libs/reveal.js/4.1.3/plugin/highlight/highlight.js"></script>
+	<script src="http://localhost:34175/libs/reveal.js/4.1.3/plugin/menu/menu.js"></script>
+	<script src="http://localhost:34175/libs/reveal.js/4.1.3/plugin/math/math.js"></script>
+
+	<script src="http://localhost:34175/libs/reveal.js/4.1.3/plugin/fullscreen/plugin.js"></script>
+  
+  	<script src="http://localhost:34175/libs/reveal.js/4.1.3/plugin/animate/plugin.js"></script>
+  	<script src="http://localhost:34175/libs/reveal.js/4.1.3/plugin/animate/svg.min.js"></script>
+  
+  	 <!--	<script src="http://localhost:34175/libs/reveal.js/4.1.3/plugin/anything/plugin.js"></script> -->
+
+ <!--	<script src="http://localhost:34175/libs/reveal.js/4.1.3/plugin/audio-slideshow/plugin.js"></script>  -->
+<!--	<script src="http://localhost:34175/libs/reveal.js/4.1.3/plugin/audio-slideshow/recorder.js"></script>-->
+<!--	<script src="http://localhost:34175/libs/reveal.js/4.1.3/plugin/audio-slideshow/RecordRTC.js"></script>-->
+
+<script src="http://localhost:34175/libs/reveal.js/4.1.3/plugin/chalkboard/plugin.js"></script>
+	<script src="http://localhost:34175/libs/reveal.js/4.1.3/plugin/customcontrols/plugin.js"></script>
+	<script src="http://localhost:34175/libs/reveal.js/4.1.3/plugin/embed-tweet/plugin.js"></script>
+
+	<script src="http://localhost:34175/libs/reveal.js/4.1.3/plugin/chart/chart.min.js"></script>
+	<script src="http://localhost:34175/libs/reveal.js/4.1.3/plugin/chart/plugin.js"></script>
+
+  <script>
+
+		const printPlugins = [
+			RevealNotes, 
+			RevealHighlight,
+			RevealMath,
+			RevealAnimate,
+			RevealChalkboard, 
+			RevealEmbedTweet,
+			RevealChart,
+		];
+
+		const plugins =  [...printPlugins,
+		RevealZoom, 
+		RevealSearch, 
+				RevealMarkdown, 
+				RevealMenu, 
+				RevealFullscreen,
+				//RevealAnything,
+				//RevealAudioSlideshow,
+				//RevealAudioRecorder,
+				RevealCustomControls, 
+				// poll
+				// question
+				// seminar
+				 ]
+
+
+		// Also available as an ES module, see:
+		// https://revealjs.com/initialization/
+		Reveal.initialize({
+			controls: true,
+			controlsTutorial: true,
+			controlsLayout: 'bottom-right',
+			controlsBackArrows: 'faded',
+			progress: true,
+			slideNumber: false,
+			//#showSlideNumber "all" "print" "speaker"
+			hash: true,//#  hash: false,
+			//# respondToHashChanges: true,
+			//# history: false,
+			keyboard: true,
+			//#keyboardCondition: null,
+			overview: true,
+			center: true,
+			touch: true,
+			loop: false,
+			rtl: false,
+			//#navigationMode: 'default', linear grid
+			shuffle: false,
+			fragments: true,
+			fragmentInURL: false,
+			embedded: false,
+			help: true,
+			//#pause: true
+			showNotes: false,
+			autoPlayMedia: false, // TODO fix this to a nullable value
+			//#preloadIframes: null. true false
+			//#autoAnimate: true
+			//#autoAnimateMatcher: null,
+			//#autoAnimateEasing: 'ease',
+			//autoAnimateDuration: 1.0,
+			//#autoAnimateUnmatched: true
+			//#autoAnimateStyles: []
+			autoSlide: 0, // TODO fix this to a falseable value
+			autoSlideStoppable: true,
+			autoSlideMethod: '0',
+			defaultTiming: 120,
+			mouseWheel: false,
+			//#previewLinks: false
+			//#postMessage: true,  // TODO : this can cause issues with the vscode api ???
+			//#postMessageEvents: false,
+			//#focusBodyOnPageVisibilityChange: true,
+			transition: 'slide',
+			transitionSpeed: 'default',
+			backgroundTransition: 'fade',
+			//#pdfMaxPagesPerSlide: Number.POSITIVE_INFINITY,
+			//#pdfSeparateFragments: true,
+			//#pdfPageHeightOffset: -1,
+			viewDistance: 3,
+			//#mobileViewDistance: 2,
+			display: 'block',
+			//#hideInactiveCursor: true,
+			//#hideCursorTime: 5000
+
+			// Parallax Background
+			parallaxBackgroundImage: '',
+			parallaxBackgroundSize: '',
+			parallaxBackgroundHorizontal: 0,
+			parallaxBackgroundVertical: 0,
+			
+			//Presentation Size
+			width: 960,
+			height: 700,
+			margin: 0.04,
+			minScale: 0.2,
+			maxScale: 2,
+			disableLayout: false,
+
+			audio: {
+				prefix: 'audio/', 	// audio files are stored in the "audio" folder
+				suffix: '.ogg',		// audio files have the ".ogg" ending
+				textToSpeechURL: null,  // the URL to the text to speech converter
+				defaultNotes: false, 	// use slide notes as default for the text to speech converter
+				defaultText: false, 	// use slide text as default for the text to speech converter
+				advance: 0, 		// advance to next slide after given time in milliseconds after audio has played, use negative value to not advance
+				autoplay: false,	// automatically start slideshow
+				defaultDuration: 5,	// default duration in seconds if no audio is available
+				defaultAudios: true,	// try to play audios with names such as audio/1.2.ogg
+				playerOpacity: 0.05,	// opacity value of audio player if unfocused
+				playerStyle: 'position: fixed; bottom: 4px; left: 25%; width: 50%; height:75px; z-index: 33;', // style used for container of audio controls
+				startAtFragment: false, // when moving to a slide, start at the current fragment or at the start of the slide
+			},
+			
+			chalkboard: { // font-awesome.min.css must be available
+					//src: "chalkboard/chalkboard.json",
+					storage: "chalkboard-demo",
+				},
+			
+			customcontrols: {
+					controls: [
+      						{
+						  id: 'toggle-overview',
+						  title: 'Toggle overview (O)',
+						  icon: '<i class="fa fa-th"></i>',
+						  action: 'Reveal.toggleOverview();'
+						}
+						,
+						{ icon: '<i class="fa fa-pen-square"></i>',
+						  title: 'Toggle chalkboard (B)',
+						  action: 'RevealChalkboard.toggleChalkboard();'
+						},
+						{ icon: '<i class="fa fa-pen"></i>',
+						  title: 'Toggle notes canvas (C)',
+						  action: 'RevealChalkboard.toggleNotesCanvas();'
+						}
+				]
+			},
+			chart: {
+					defaults: { 
+						color: 'lightgray', // color of labels
+						scale: { 
+							beginAtZero: true, 
+							ticks: { stepSize: 1 },
+							grid: { color: "lightgray" } , // color of grid lines
+						},
+					},
+					line: { borderColor: [ "rgba(20,220,220,.8)" , "rgba(220,120,120,.8)", "rgba(20,120,220,.8)" ], "borderDash": [ [5,10], [0,0] ] }, 
+					bar: { backgroundColor: [ "rgba(20,220,220,.8)" , "rgba(220,120,120,.8)", "rgba(20,120,220,.8)" ]}, 
+					pie: { backgroundColor: [ ["rgba(0,0,0,.8)" , "rgba(220,20,20,.8)", "rgba(20,220,20,.8)", "rgba(220,220,20,.8)", "rgba(20,20,220,.8)"] ]},
+					radar: { borderColor: [ "rgba(20,220,220,.8)" , "rgba(220,120,120,.8)", "rgba(20,120,220,.8)" ]}, 
+			},
+			math: {
+				mathjax: 'https://cdn.jsdelivr.net/gh/mathjax/mathjax@2.7.8/MathJax.js',
+				config: 'TeX-AMS_HTML-full',
+				// pass other options into `MathJax.Hub.Config()`
+				TeX: { Macros: { RR: "{\\bf R}" } }
+				},
+			// Learn about plugins: https://revealjs.com/plugins/
+			plugins: (window.location.search.match(/print-pdf/gi) ? printPlugins : plugins ) 
+		});
+			
+
+
+	    // Change chalkboard theme : 
+		function changeTheme(input) {
+			var config = {};
+			config.theme = input.value;
+			Reveal.getPlugin("RevealChalkboard").configure(config);
+			input.blur();
+		}
+
+		// // Handle the message inside the webview
+        // window.addEventListener('message', event => {
+
+        //     const message = event.data; // The JSON data our extension sent
+
+        //     switch (message.command) {
+        //         case 'refactor':
+        //             Reveal.toggleHelp();
+        //     }
+        // });
+
+		if (window.location.search.match(/print-pdf-now/gi)) {
+      		setTimeout(() => {
+				window.print();
+			  }, 2500);
+			
+    }
+		
+
+	</script>
+
+</body>
+
+</html>
