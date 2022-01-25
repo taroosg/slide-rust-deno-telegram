@@ -7,6 +7,12 @@ Rust と Deno で Webassembly する
 
 Telegram Bot をつくった
 
+<div style="display:flex;justify-content:space-evenly;background:lightgray;">
+<img src="https://upload.wikimedia.org/wikipedia/commons/thumb/d/d5/Rust_programming_language_black_logo.svg/1200px-Rust_programming_language_black_logo.svg.png" alt="" style="height:150px;">
+<img src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/84/Deno.svg/1200px-Deno.svg.png" alt="" style="height:150px;">
+<img src="https://is3-ssl.mzstatic.com/image/thumb/Purple126/v4/05/bb/5a/05bb5ab0-7505-3a7b-f29e-78ddb6f20dbc/AppIcon-85-220-0-4-2x.png/1200x630bb.png" alt="" style="height:150px;">
+</div>
+
 ---
 
 ::: block
@@ -15,14 +21,15 @@ Telegram Bot をつくった
 
 --
 
-|        |                                                                                                    |
-| ------ | -------------------------------------------------------------------------------------------------- |
-| Name   | 大杉太郎（たろさん，たろ先生）                                                                     |
-| Age    | 34 （1987 年生まれ）                                                                               |
-| Place  | 茨城県 -> 北海道 -> 東京都 -> 福岡県                                                               |
-| Career | 会社員（医療系メーカー企画設計開発）<br>ジーズアカデミー東京チューター<br>ジーズアカデミー福岡講師 |
-| Like1  | Rust，Node.js，本，旅行，断捨離                                                                    |
-| Like2  | 🥃, 🍺, 🍷                                                                                         |
+|         |                                      |
+| ------- | ------------------------------------ |
+| Name    | 大杉太郎（たろさん，たろ先生）       |
+| Age     | 34 （1987 年生まれ）                 |
+| Place   | 茨城県 -> 北海道 -> 東京都 -> 福岡県 |
+| Career  | ジーズアカデミー福岡主任講師         |
+| Like1   | Rust，Node.js，本，旅行，断捨離      |
+| Like2   | 🥃, 🍺, 🍷                           |
+| twitter | @taro_osg                            |
 
 ---
 
@@ -150,8 +157,6 @@ Deno
 
 --
 
---
-
 ```ts
 import { Bot } from "./deps.ts";
 import init, { fib, prime_factorization } from "./pkg/rust_calculate_bot.js";
@@ -175,11 +180,41 @@ const token = Deno.env.get("BOT_TOKEN") as string;
 
 const bot = new Bot(token);
 
-bot.on("text", async (ctx) => {
-  await ctx.reply(createResponse(ctx.message?.text));
-});
+// テキスト
+bot.on(
+  "message:text",
+  async (ctx) =>
+    await ctx.reply(createResponse(ctx.message?.text), {
+      reply_to_message_id: ctx.msg.message_id,
+    })
+);
 
-bot.launch();
+bot.start();
+
+export default Bot;
+```
+
+--
+
+```ts
+import { Bot, webhookCallback } from "https://deno.land/x/grammy/mod.ts";
+import bot from "./bot.ts";
+import { serve } from "https://deno.land/std/http/server.ts";
+
+const handleUpdate = webhookCallback(bot, "std/http");
+
+serve(async (req) => {
+  if (req.method == "POST") {
+    try {
+      return await handleUpdate(req);
+    } catch (err) {
+      console.error(err);
+      return new Response();
+    }
+  }
+
+  return new Response();
+});
 ```
 
 ---
@@ -192,8 +227,12 @@ bot.launch();
 
 --
 
-- Rust のコードをビルドして読み込むだけ！
+Rust のコードをビルドして読み込むだけ！
 
-- Rust の処理は入出力を明確にするとやりやすい
+--
 
-- 実装の幅が広がる．．！！
+Rust の処理は入出力を明確にするとやりやすい
+
+--
+
+好きな言語で書けるのが嬉しい．．！！
